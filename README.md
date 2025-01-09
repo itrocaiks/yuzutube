@@ -73,12 +73,12 @@ after installing and configuring everything just as it was said here, run the so
 ```
 yuzutube
 ```
-the interface is user-friendly, to quit from searching line press Ctrl+x, to quit from anywhere press Ctrl+c<br>
-to search press, select video or format press Enter from coresponding window<br>
+the interface is user-friendly, to quit from searching line, press Ctrl+x, to quit from anywhere, press Ctrl+c<br>
+to search, select video or format press Enter from coresponding window<br>
 to interrupt download or get back to inputting press 'q'
 
 ## Afterwords
-i've been making this TUI for 19 hours/day, i got a headache, and it's not very likely that I'd maintain this software for any longer<br>
+i've been making this TUI for 19 hours/day, i got a headache, and it's not very likely that I'd maintain this software any furtherr<br>
 but it would be nice if you report something in issues, i'll try to help you as soon as i receive the notification :3
 
 
