@@ -12,6 +12,24 @@ for pacman it's:
 ```
 sudo pacman -Syu python cjson ncurses clang
 ```
+### Getting cookies.txt
+you will have to get your youtube cookies (use chrome extension for it: https://chromewebstore.google.com/search/cookies.txt)
+<br>
+After getting cookies file rename it to cookies.txt
+```
+mv <your_cookie_file> cookies.txt
+```
+<br>
+After this, you may run quick_install.sh, which installs and configures everything by default,<br>
+skip this part if you want to install it manually
+
+```
+git clone https://github.com/itrocaiks/yuzutube
+mv cookies.txt yuzutube/
+cd yuzutube
+/bin/bash quick_install.py
+```
+###
 if you're having issues with installation, please report in "Issues"
 ### Installing python modules
 Ensure that you have pip modules youtube_search, yt_dlp, argparse
@@ -73,7 +91,7 @@ export PYTHONPATH=$HOME/venv/lib/python3.13/site-packages
 ####
 (to set it the permanently write these commands to your .bashrc/.zshrc (depends on shell))
 
-### Getting cookies.txt
+### Getting cookies.txt (if you didn't get it before)
 you will have to get your youtube cookies (use chrome extension for it: https://chromewebstore.google.com/search/cookies.txt)
 <br>
 After getting cookies file, copy it to conf dir:
