@@ -111,7 +111,7 @@ void get_sizes(int* height, int* width) {
 		resize_flag = 0;
 	}
 
-    if (w < 45 || h < 10) {
+    if (w < 45 || h < 5) {
         endwin();
         printf("Terminal size should be at least 10x60\n");
         kill(getppid(), SIGTERM);
@@ -298,9 +298,9 @@ void draw_main() {
                         exit(0);
                     }
                     if (shrinked) {
-                    	mvwprintw(w_arr[selected - dif], 1, width - 18, "               ");
-                    	mvwprintw(w_arr[selected - dif], 2, width - 18, "               ");
-                    } else {										    //"Download completed (MP3)"
+                    	mvwprintw(w_arr[selected - dif], 1, width - 19, "                ");
+                    	mvwprintw(w_arr[selected - dif], 2, width - 19, "                ");
+                    } else {										 
                     	mvwprintw(w_arr[selected - dif], 1, width - 27, "                        ");
                     	mvwprintw(w_arr[selected - dif], 2, width - 27, "                        ");
                     }
@@ -312,8 +312,8 @@ void draw_main() {
                         tmp_ch = wgetch(input_win);
                         if (tmp_ch == 113) {
                         	if (shrinked) {
-                        		mvwprintw(w_arr[selected - dif], 2, width - 18, "               ");
-                            	mvwprintw(w_arr[selected - dif], 2, width - 15, "Interrupted");
+                        		mvwprintw(w_arr[selected - dif], 2, width - 19, "                ");
+                            	mvwprintw(w_arr[selected - dif], 2, width - 16, "Interrupted");
                         	} else {
                         		mvwprintw(w_arr[selected - dif], 2, width - 27, "                        ");
                             	mvwprintw(w_arr[selected - dif], 2, width - 19, "Interrupted");
@@ -331,7 +331,7 @@ void draw_main() {
                         
                         if (result == -1) {
                         	if (shrinked) {
-                        		mvwprintw(w_arr[selected - dif], 2, width - 16, "Err download");
+                        		mvwprintw(w_arr[selected - dif], 2, width - 17, "Err download");
                         	} else {
                         		mvwprintw(w_arr[selected - dif], 2, width - 24, "Error downloading %s", format);
                         	}
@@ -342,7 +342,7 @@ void draw_main() {
                         
                         if (result == 0) {
                         	if (shrinked) {
-                        		mvwprintw(w_arr[selected - dif], 2, width - 16, "Downloadin %c", icons[i_icons]);
+                        		mvwprintw(w_arr[selected - dif], 2, width - 17, "Downloadin %c", icons[i_icons]);
                         	} else {
                         		mvwprintw(w_arr[selected - dif], 2, width - 22, "Downloading %s %c", format, icons[i_icons]);
                         	}
@@ -354,9 +354,9 @@ void draw_main() {
                             }
                         } else {
                         	if (shrinked) {
-                        		mvwprintw(w_arr[selected - dif], 2, width - 16, "%s downloaded", format);
+                        		mvwprintw(w_arr[selected - dif], 2, width - 18, "%s downloaded", format);
                         	} else {
-                        		mvwprintw(w_arr[selected - dif], 2, width - 27, "Download completed (%s)", format);
+                        		mvwprintw(w_arr[selected - dif], 2, width - 22, "Downloaded! (%s)", format);
                         	}
                             
                             wrefresh(w_arr[selected - dif]);

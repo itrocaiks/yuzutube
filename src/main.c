@@ -184,7 +184,7 @@ void handle_sigsegv(int sig) {
 
 
 int main(int argc, char* argv[]) {
-    if (argc > 2 || strcmp(argv[1], "--help") == 0) {
+    if (argc > 2 || (argc > 1 && strcmp(argv[1], "--help") == 0)) {
         printf(" Usage: yuzutube [OPTION]\n");
         printf("\t--min-width\tallows terminal width < 70\n");
         printf("\t--help\tdisplay this message");
