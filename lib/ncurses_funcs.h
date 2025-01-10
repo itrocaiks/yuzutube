@@ -20,8 +20,14 @@ WINDOW** create_wins(int count, int width) {
 WINDOW** create_der_wins2(WINDOW* p_win) {
     WINDOW** w_arr = (WINDOW**)malloc(2 * sizeof(WINDOW*));
 
-    w_arr[0] = derwin(p_win, 3, 16, 1, 3);
-    w_arr[1] = derwin(p_win, 3, 16, 1, 20);
+    if (shrinked) {
+    	w_arr[0] = derwin(p_win, 3, 9, 1, 3);
+    	w_arr[1] = derwin(p_win, 3, 9, 1, 13);
+    } else {
+    	w_arr[0] = derwin(p_win, 3, 18, 1, 3);
+    	w_arr[1] = derwin(p_win, 3, 18, 1, 22);
+    }
+    
 
     return w_arr;
 }
@@ -67,8 +73,13 @@ void delete_wins(WINDOW** w_arr, int count) {
 }
 
 void print_search(WINDOW* input_win, int visible_width, int pos, int offset, char* input) {
-	mvprintw(0, 2, "──────────────────────────────────────────────");
-    mvprintw(0, 2, "Search (press Enter to search, Ctrl+X to quit)");
+	if (shrinked) {
+		mvprintw(0, 2, "─────────────");
+		mvprintw(0, 2, "Search");
+	} else {
+		mvprintw(0, 2, "──────────────────────────────────────────────");
+    	mvprintw(0, 2, "Search (press Enter to search, Ctrl+X to quit)");
+	}
     refresh();
 
     mvwprintw(input_win, 0, 1, ">");      
@@ -100,16 +111,16 @@ void get_sizes(int* height, int* width) {
 		resize_flag = 0;
 	}
 
-    if (w < 25 || h < 5) {
+    if (w < 45 || h < 10) {
         endwin();
-        printf("Terminal size should be at least 14x70\n");
+        printf("Terminal size should be at least 10x60\n");
         kill(getppid(), SIGTERM);
         exit(1);
     }
 
-    if (w < 70 || h < 14) {
+    if ((!allow_shrink && w < 60) || h < 10) {
         char* warn1 = "Terminal size should be";
-        char* warn2 = "at least 14x70";
+        char* warn2 = "at least 10x60";
         mvprintw(h / 2, (w / 2) - 23 / 2, "%s", warn1);
         mvprintw(h / 2 + 1, (w / 2) - 14 / 2, "%s", warn2);
         refresh();
@@ -117,6 +128,11 @@ void get_sizes(int* height, int* width) {
         	usleep(100000);
         }  
     }
+
+    if (allow_shrink && w < 60) {
+    	shrinked = 1;
+    }
+
     curs_set(1);
 }
 
@@ -178,15 +194,27 @@ void draw_main() {
             
 
             if (json_parsed == NULL) {
-                mvprintw(0, 2, "──────────────────────────────────────────────");
-                mvprintw(0, 2, "Searching error, try again");
+            	if (shrinked) {
+            		mvprintw(0, 2, "─────────────");
+                	mvprintw(0, 2, "Srch err");
+            	} else {
+            		mvprintw(0, 2, "──────────────────────────────────────────────");
+                	mvprintw(0, 2, "Searching error, try again");
+            	}
+                
                 refresh();
                 srch_err = 1;
                 continue;
             }
 
-            mvprintw(0, 2, "──────────────────────────────────────────────");
-            mvprintw(0, 2, "‎Found results: %d (press 'q' to input query)", RECEIVED);
+            if (shrinked) {
+            	mvprintw(0, 2, "─────────────");
+            	mvprintw(0, 2, "‎Found: %d", RECEIVED);
+            } else {
+            	mvprintw(0, 2, "──────────────────────────────────────────────");
+            	mvprintw(0, 2, "‎Found results: %d (press 'q' to input query)", RECEIVED);
+            }
+            
             refresh();
         
             int max_wins = (height - 3) / 5;
@@ -269,16 +297,28 @@ void draw_main() {
                         system(command);
                         exit(0);
                     }
-                    mvwprintw(w_arr[selected - dif], 1, width - 32, "                             ");
-                    mvwprintw(w_arr[selected - dif], 2, width - 32, "                             ");
+                    if (shrinked) {
+                    	mvwprintw(w_arr[selected - dif], 1, width - 18, "               ");
+                    	mvwprintw(w_arr[selected - dif], 2, width - 18, "               ");
+                    } else {										    //"Download completed (MP3)"
+                    	mvwprintw(w_arr[selected - dif], 1, width - 27, "                        ");
+                    	mvwprintw(w_arr[selected - dif], 2, width - 27, "                        ");
+                    }
+                    
 
                     char tmp_ch;
                     nodelay(input_win, TRUE);
                     while (1) {
                         tmp_ch = wgetch(input_win);
                         if (tmp_ch == 113) {
-                            mvwprintw(w_arr[selected - dif], 2, width - 32, "                             ");
-                            mvwprintw(w_arr[selected - dif], 2, width - 22, "Interrupted");
+                        	if (shrinked) {
+                        		mvwprintw(w_arr[selected - dif], 2, width - 18, "               ");
+                            	mvwprintw(w_arr[selected - dif], 2, width - 15, "Interrupted");
+                        	} else {
+                        		mvwprintw(w_arr[selected - dif], 2, width - 27, "                        ");
+                            	mvwprintw(w_arr[selected - dif], 2, width - 19, "Interrupted");
+                        	}
+                            
                             wrefresh(w_arr[selected - dif]);
                             killpg(py_proc, SIGKILL);
                             waitpid(py_proc, NULL, 0);
@@ -290,20 +330,35 @@ void draw_main() {
                         pid_t result = waitpid(py_proc, &status, WNOHANG);
                         
                         if (result == -1) {
-                            mvwprintw(w_arr[selected - dif], 2, width - 27, "Error downloading %s", format);
+                        	if (shrinked) {
+                        		mvwprintw(w_arr[selected - dif], 2, width - 16, "Err download");
+                        	} else {
+                        		mvwprintw(w_arr[selected - dif], 2, width - 24, "Error downloading %s", format);
+                        	}
+                            
                             wrefresh(w_arr[selected - dif]);
                             break;
                         }
                         
                         if (result == 0) {
-                            mvwprintw(w_arr[selected - dif], 2, width - 25, "Downloading %s %c", format, icons[i_icons]);
+                        	if (shrinked) {
+                        		mvwprintw(w_arr[selected - dif], 2, width - 16, "Downloadin %c", icons[i_icons]);
+                        	} else {
+                        		mvwprintw(w_arr[selected - dif], 2, width - 22, "Downloading %s %c", format, icons[i_icons]);
+                        	}
+                            
                             if (i_icons == 3) {
                                 i_icons = 0;
                             } else {
                                 i_icons++;
                             }
                         } else {
-                            mvwprintw(w_arr[selected - dif], 2, width - 30, "Download completed (%s)", format);
+                        	if (shrinked) {
+                        		mvwprintw(w_arr[selected - dif], 2, width - 16, "%s downloaded", format);
+                        	} else {
+                        		mvwprintw(w_arr[selected - dif], 2, width - 27, "Download completed (%s)", format);
+                        	}
+                            
                             wrefresh(w_arr[selected - dif]);
                             py_proc = -1;
                             break;
@@ -322,8 +377,14 @@ void draw_main() {
                     WINDOW** der_wins = create_der_wins2(w_arr[selected-dif]);
                     box(der_wins[0], 0, 0);
 
-                    mvwprintw(der_wins[0], 1, 1, "Download MP3 𝅘𝅥𝅮");
-                    mvwprintw(der_wins[1], 1, 1, "Download MP4 ⏵︎");
+                    if (shrinked) {
+                    	mvwprintw(der_wins[0], 1, 2, "MP3 𝅘𝅥𝅮 ");
+                    	mvwprintw(der_wins[1], 1, 2, "MP4 ⏵︎ ");
+                    } else {
+                    	mvwprintw(der_wins[0], 1, 2, "Download MP3 𝅘𝅥𝅮 ");
+                    	mvwprintw(der_wins[1], 1, 2, "Download MP4 ⏵︎ ");
+                    }
+                    
 
                     refresh_wins(der_wins, 2);
 
@@ -355,8 +416,13 @@ void draw_main() {
 
                         erase_wins(der_wins, 2);
 
-                        mvwprintw(der_wins[0], 1, 1, "Download MP3 𝅘𝅥𝅮");
-                        mvwprintw(der_wins[1], 1, 1, "Download MP4 ⏵︎");
+                        if (shrinked) {
+	                    	mvwprintw(der_wins[0], 1, 2, "MP3 𝅘𝅥𝅮 ");
+	                    	mvwprintw(der_wins[1], 1, 2, "MP4 ⏵︎ ");
+	                    } else {
+	                    	mvwprintw(der_wins[0], 1, 2, "Download MP3 𝅘𝅥𝅮 ");
+	                    	mvwprintw(der_wins[1], 1, 2, "Download MP4 ⏵︎ ");
+	                    }
 
                         if (sel_der != -1 && sel_der < 2) {
                             box(der_wins[sel_der], 0, 0);

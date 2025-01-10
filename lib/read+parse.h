@@ -144,8 +144,14 @@ cJSON*** get_json_parsed(char* input, cJSON** root) {
         }
         
         if (result == 0) {
-        	mvprintw(0, 2, "──────────────────────────────────────────────");
-            mvprintw(0, 2, "Searching%s", icons[i_icons]);
+            if (shrinked) {
+                mvprintw(0, 2, "─────────────");
+                mvprintw(0, 2, "Searching%s", icons[i_icons]);
+            } else {
+                mvprintw(0, 2, "──────────────────────────────────────────────");
+                mvprintw(0, 2, "Searching%s", icons[i_icons]);
+            }
+        	
             if (i_icons == 2) {
                 i_icons = 0;
             } else {

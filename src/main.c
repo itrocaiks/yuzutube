@@ -147,6 +147,9 @@ void check_dirs(int* error) {
     }
 }
 
+volatile int shrinked = 0;
+volatile int allow_shrink = 0;
+
 volatile int RECEIVED = 0;
 volatile int is_first_exec = 1;
 
@@ -180,7 +183,18 @@ void handle_sigsegv(int sig) {
 
 
 
-int main() {
+int main(int argc, char* argv[]) {
+    if (argc > 2 || strcmp(argv[1], "--help") == 0) {
+        printf(" Usage: yuzutube [OPTION]\n");
+        printf("\t--min-width\tallows terminal width < 70\n");
+        printf("\t--help\tdisplay this message");
+        exit(0);
+    }
+
+
+    if (argc > 1 && strcmp(argv[1], "--min-width") == 0) {
+        allow_shrink = 1;
+    }
 
     setlocale(LC_ALL, "");
     signal(SIGWINCH, handle_resize);
