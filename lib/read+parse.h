@@ -114,8 +114,19 @@ char* read_file(char* file_name) {
     return buffer; 
 }
 
+void parse_input(char** input) {
+    if (utf8_at(*input, 0)[0] == '\"') {
+        utf8_shift_left(*input, 1);
+    }
+    if (utf8_at(*input, utf8_strlen(*input) - 1)[0] == '\"') {
+        utf8_at(*input, utf8_strlen(*input) - 1)[0] = '\0';
+    }
+}
+
 cJSON*** get_json_parsed(char* input, cJSON** root) {
 	size_t len = strlen(input);
+
+    parse_input(&input);
 
 	char py_command[strlen(CONFIG_PATH) * 2 + len + 80];
 	snprintf(py_command, sizeof(py_command), "python %s/bin/query_sender.py -q \"%s\" -l %d -c %s > /dev/null 2>&1", CONFIG_PATH, input, MAX_LIMIT, CONFIG_PATH);

@@ -60,4 +60,27 @@ unsigned char* utf8_at(char* str, size_t index) {
     return NULL; 
 }
 
+int utf8_char_length(unsigned char utf8_char) {
+    if ((utf8_char & 0x80) == 0) {
+        return 1;
+    } else if ((utf8_char & 0xE0) == 0xC0) {
+        return 2;
+    } else if ((utf8_char & 0xF0) == 0xE0) {
+        return 3;
+    } else if ((utf8_char & 0xF8) == 0xF0) {
+        return 4;
+    } else {
+        return -1; 
+    }
+}
+
+// Функция для удаления первого символа UTF-8
+void utf8_shift_left(char* str, int index) {
+    int char_len = utf8_char_length((unsigned char)(str)[index]);
+    if (char_len > 0) {
+        memmove(str, str + char_len, strlen(str) - char_len + 1); 
+    }
+}
+
+
 #endif

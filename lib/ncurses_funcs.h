@@ -188,7 +188,11 @@ void draw_main() {
             nodelay(input_win, TRUE);
 
             cJSON* root = NULL;
-            cJSON*** json_parsed = get_json_parsed(input, &root);
+
+            char cp_input[strlen(input)];
+            strcpy(cp_input, input);
+
+            cJSON*** json_parsed = get_json_parsed(cp_input, &root);
 
             nodelay(input_win, FALSE);
             
