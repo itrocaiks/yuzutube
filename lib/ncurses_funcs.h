@@ -382,10 +382,10 @@ void draw_main() {
                     box(der_wins[0], 0, 0);
 
                     if (shrinked) {
-                    	mvwprintw(der_wins[0], 1, 2, "MP3 𝅘𝅥𝅮 ");
+                    	mvwprintw(der_wins[0], 1, 2, "MP3 ♬ ");
                     	mvwprintw(der_wins[1], 1, 2, "MP4 ⏵︎ ");
                     } else {
-                    	mvwprintw(der_wins[0], 1, 2, "Download MP3 𝅘𝅥𝅮 ");
+                    	mvwprintw(der_wins[0], 1, 2, "Download MP3 ♬ ");
                     	mvwprintw(der_wins[1], 1, 2, "Download MP4 ⏵︎ ");
                     }
                     
@@ -421,10 +421,10 @@ void draw_main() {
                         erase_wins(der_wins, 2);
 
                         if (shrinked) {
-	                    	mvwprintw(der_wins[0], 1, 2, "MP3 𝅘𝅥𝅮 ");
+	                    	mvwprintw(der_wins[0], 1, 2, "MP3 ♬ ");
 	                    	mvwprintw(der_wins[1], 1, 2, "MP4 ⏵︎ ");
 	                    } else {
-	                    	mvwprintw(der_wins[0], 1, 2, "Download MP3 𝅘𝅥𝅮 ");
+	                    	mvwprintw(der_wins[0], 1, 2, "Download MP3 ♬ ");
 	                    	mvwprintw(der_wins[1], 1, 2, "Download MP4 ⏵︎ ");
 	                    }
 
@@ -476,8 +476,6 @@ void draw_main() {
         	
             input[pos++] = ch;
             input[pos] = '\0';
-
-            //pos++;
 
             if (pos - offset >= visible_width) {
                 offset++;

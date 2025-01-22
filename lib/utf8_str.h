@@ -76,10 +76,36 @@ int utf8_char_length(unsigned char utf8_char) {
 
 // Функция для удаления первого символа UTF-8
 void utf8_shift_left(char* str, int index) {
-    int char_len = utf8_char_length((unsigned char)(str)[index]);
-    if (char_len > 0) {
-        memmove(str, str + char_len, strlen(str) - char_len + 1); 
+    int shift = 0;
+    for (int i = 0; i <= index; ++i) {
+        shift += utf8_char_length((unsigned char)(str)[shift]);
     }
+    if (shift > 0) {
+        memmove(str, str + shift, strlen(str) - shift + 1); 
+    }
+}
+
+
+char* utf8_remove_char(char* str, int index) {
+    if (str == NULL || index < 0 || index >= utf8_strlen(str)) {
+        return NULL;
+    }
+
+    char str_tmp1[strlen(str)];
+    strcpy(str_tmp1, str);
+    utf8_at(str_tmp1, index)[0] = '\0';
+
+
+    char str_tmp2[strlen(str)];
+    strcpy(str_tmp2, str);
+    utf8_shift_left(str_tmp2, index);
+
+    
+
+    snprintf(str, sizeof(str) + sizeof(str_tmp1) + sizeof(str_tmp2), "%s%s", str_tmp1, str_tmp2);
+
+    return str;
+
 }
 
 

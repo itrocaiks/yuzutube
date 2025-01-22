@@ -7,6 +7,10 @@
 /*------------------------------------------------------*/
 
 cJSON*** read_json(char* json_string, cJSON* root) {
+    if (json_string == NULL) {
+        return NULL;
+    }
+
     root = cJSON_Parse(json_string);
     if (root == NULL) {
     	endwin();
@@ -115,11 +119,20 @@ char* read_file(char* file_name) {
 }
 
 void parse_input(char** input) {
-    if (utf8_at(*input, 0)[0] == '\"') {
-        utf8_shift_left(*input, 1);
-    }
-    if (utf8_at(*input, utf8_strlen(*input) - 1)[0] == '\"') {
-        utf8_at(*input, utf8_strlen(*input) - 1)[0] = '\0';
+    // if (utf8_at(*input, 0)[0] == '\"') {
+    //     utf8_shift_left(*input, 0);
+    // }
+    // if (utf8_at(*input, utf8_strlen(*input) - 1)[0] == '\"') {
+    //     utf8_at(*input, utf8_strlen(*input) - 1)[0] = '\0';
+    // }
+
+    for (int i = 0; i < utf8_strlen(*input); ++i) {
+        if (utf8_at(*input, i)[0] == '\\'||
+            utf8_at(*input, i)[0] == '\"' ||
+            utf8_at(*input, i)[0] == '\'') {
+            *input = utf8_remove_char(*input, i);
+        i--;
+        }
     }
 }
 
@@ -200,7 +213,7 @@ cJSON*** get_json_parsed(char* input, cJSON** root) {
 	char *json_string = read_file(file_name);
 	cJSON*** json_parsed = read_json(json_string, *root);
 
-	remove(file_name);
+	//remove(file_name);
 	
 	return json_parsed;
 }
