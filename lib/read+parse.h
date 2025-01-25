@@ -136,16 +136,53 @@ void parse_input(char** input) {
     }
 }
 
-cJSON*** get_json_parsed(char* input, cJSON** root) {
-	size_t len = strlen(input);
+wchar_t* remove_wchar(wchar_t* str, int index) {
 
-    parse_input(&input);
+    // wchar_t str_tmp1[wcslen(str)];
+    // wcscpy(str_tmp1, str);
+    // str_tmp1[index] = '\0';
 
-	char py_command[strlen(CONFIG_PATH) * 2 + len + 80];
-	snprintf(py_command, sizeof(py_command), "python %s/bin/query_sender.py -q \"%s\" -l %d -c %s > /dev/null 2>&1", CONFIG_PATH, input, MAX_LIMIT, CONFIG_PATH);
+
+    //wchar_t str_tmp2[wcslen(str)];
+    //wcscpy(str_tmp2, str);
+    //memmove(str_tmp2 + index, str_tmp2 + index + 1, (wcslen(str_tmp2) + 1) * sizeof(wchar_t));
+
+    memmove(str + index, str + index + 1, (wcslen(str) + 1) * sizeof(wchar_t));
+
+
+    //wcscpy(str, str_tmp2);
+    
+
+    //swprintf(str, wcslen(str) + wcslen(str_tmp1) + wcslen(str_tmp2), L"%ls%ls", str_tmp1, str_tmp2);
+
+    return str;
+
+}
+
+void parse_winput(wchar_t* input) {
+
+    for (int i = 0; i < wcslen(input); ++i) {
+        if (input[i] == '\\'||
+            input[i] == '\"' ||
+            input[i] == '\'') {
+            input = remove_wchar(input, i);
+            i--;
+        }
+    }
+}
+
+cJSON*** get_json_parsed(wchar_t* input, cJSON** root) {
+	size_t len = wcslen(input);
+
+    parse_winput(input);
+
+    size_t command_len = strlen(CONFIG_PATH) * 2 + len * sizeof(wchar_t) + 80;
+	char py_command[command_len];
+	snprintf(py_command, sizeof(py_command), "python %s/bin/query_sender.py -q \"%ls\" -l %d -c %s > /dev/null 2>&1", CONFIG_PATH, input, MAX_LIMIT, CONFIG_PATH);
 
 	py_proc = fork();
 	if (py_proc == 0) {
+        
 		int ret_code = system(py_command);
 		if (ret_code == 0) {
 			exit(0);
@@ -199,8 +236,8 @@ cJSON*** get_json_parsed(char* input, cJSON** root) {
         usleep(200000);
     }
 
-	char file_name[strlen(CONFIG_PATH) + len + 40];
-	snprintf(file_name, sizeof(file_name), "%s/tmp/\'%s\'.json", CONFIG_PATH, input);
+	char file_name[strlen(CONFIG_PATH) + len * sizeof(wchar_t) + 40];
+	snprintf(file_name, sizeof(file_name), "%s/tmp/\'%ls\'.json", CONFIG_PATH, input);
 
 	if (access(file_name, F_OK) != 0) {
 	   endwin();

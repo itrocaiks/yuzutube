@@ -72,7 +72,7 @@ void delete_wins(WINDOW** w_arr, int count) {
     }
 }
 
-void print_search(WINDOW* input_win, int visible_width, int pos, int offset, char* input) {
+void print_search(WINDOW* input_win, int visible_width, int pos, int offset, wchar_t* input) {
 	if (shrinked) {
 		mvprintw(0, 2, "─────────────");
 		mvprintw(0, 2, "Search");
@@ -85,7 +85,9 @@ void print_search(WINDOW* input_win, int visible_width, int pos, int offset, cha
     mvwprintw(input_win, 0, 1, ">");      
     wclrtoeol(input_win);          
 
-    mvwprintw(input_win, 0, 3, "%.*s", visible_width, input + offset); 
+    //mvwprintw(input_win, 0, 3, "%.*ls", visible_width, input + offset);
+    mvwprintw(input_win, 0, 3, "%ls", input + offset);
+    //mvwprintw(input_win, 0, 3, "%ls", input); 
     wmove(input_win, 0, 3 + pos - offset);
     wrefresh(input_win);           
 }
@@ -163,34 +165,36 @@ void draw_main() {
     box(stdscr, 0, 0);
     
 
-    char input[MAX_INPUT_Q] = ""; 
-    int ch, pos = 0, offset = 0;            
+    wchar_t input[MAX_INPUT_Q]; 
+    int pos = 0, offset = 0;  
+    int ch = 0;
+    wint_t wch = 0;          
     int visible_width = width - 5;
 
     int srch_err = 0;
 
     while (1) {
     	if (srch_err) {
-    		ch = wgetch(input_win);
+    		ch = wget_wch(input_win, &wch);
     		print_search(input_win, visible_width, pos, offset, input);
     		srch_err = 0;
     		curs_set(1);
     	} else {
     		print_search(input_win, visible_width, pos, offset, input);
-    		ch = wgetch(input_win);
+    		ch = wget_wch(input_win, &wch);
     	}
         
 
         
-        if (ch == 10) { 
+        if (wch == 10) { 
             curs_set(0);
 
             nodelay(input_win, TRUE);
 
             cJSON* root = NULL;
 
-            char cp_input[strlen(input)];
-            strcpy(cp_input, input);
+            wchar_t cp_input[wcslen(input)];
+            wcscpy(cp_input, input);
 
             cJSON*** json_parsed = get_json_parsed(cp_input, &root);
 
@@ -459,10 +463,11 @@ void draw_main() {
             free(w_arr); 
             cJSON_Delete(root);
             
-        } else if (ch == KEY_BACKSPACE || ch == 127) { 
+        } else if (wch == KEY_BACKSPACE || wch == 127) { 
             if (pos > 0) {          
                 pos--;
-                memmove(input + pos, input + pos + 1, strlen(input) - pos);
+                //memmove(input + pos, input + pos + 1, wcslen(input) - pos);
+                input[pos] = L'\0';
                 
                 if (pos < offset) {
                     offset--;
@@ -472,15 +477,14 @@ void draw_main() {
                     offset--;
                 }
             }
-        } else if (pos < MAX_INPUT_Q - 1 && ch >= 32 && ch <= 126) { 
-        	
-            input[pos++] = ch;
+        } else if (pos < MAX_INPUT_Q - 1 && wch >= 32) { 
+            input[pos++] = wch;
             input[pos] = '\0';
 
             if (pos - offset >= visible_width) {
                 offset++;
             }
-        } else if (ch == 24) {
+        } else if (wch == 24) {
             break;
         }
     }
