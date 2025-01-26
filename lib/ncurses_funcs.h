@@ -172,6 +172,7 @@ void draw_main() {
     int visible_width = width - 5;
 
     int srch_err = 0;
+    int negative_shift = 0;
 
     while (1) {
     	if (srch_err) {
@@ -188,10 +189,11 @@ void draw_main() {
         
         if (wch == 10) { 
             curs_set(0);
-
             nodelay(input_win, TRUE);
 
             cJSON* root = NULL;
+
+            pos = wcslen(input) - 1;
 
             wchar_t cp_input[wcslen(input)];
             wcscpy(cp_input, input);
@@ -466,8 +468,8 @@ void draw_main() {
         } else if (wch == KEY_BACKSPACE || wch == 127) { 
             if (pos > 0) {          
                 pos--;
-                //memmove(input + pos, input + pos + 1, wcslen(input) - pos);
-                input[pos] = L'\0';
+                memmove(input + pos, input + pos + 1, wcslen(input) * sizeof(wchar_t));
+                //input[pos] = L'\0';
                 
                 if (pos < offset) {
                     offset--;
@@ -477,9 +479,45 @@ void draw_main() {
                     offset--;
                 }
             }
+        } else if (wch == KEY_LEFT) { 
+            if (pos > 0) {
+                negative_shift++;          
+                pos--;
+                
+                if (pos < offset) {
+                    offset--;
+                }
+
+                if (pos + 2 > visible_width) {
+                    offset--;
+                }
+            }
+        } else if (wch == KEY_RIGHT) { 
+            if (pos > 0 && pos < wcslen(input)) {
+                negative_shift--;          
+                pos++;
+                
+
+                if (pos - offset >= visible_width) {
+                    offset++;
+                }
+                // if (pos > offset) {
+                //     offset++;
+                // }
+
+                // // if (pos + 2 > visible_width) {
+                // //     offset--;
+                // // }
+            }
         } else if (pos < MAX_INPUT_Q - 1 && wch >= 32) { 
-            input[pos++] = wch;
-            input[pos] = '\0';
+            if (negative_shift) {
+                memmove(input + pos + 1, input + pos, (wcslen(input) + 2) * sizeof(wchar_t));
+                input[pos++] = wch;
+            } else {
+                input[pos++] = wch;
+                input[pos] = '\0';
+            }
+            
 
             if (pos - offset >= visible_width) {
                 offset++;
