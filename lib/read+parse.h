@@ -250,7 +250,7 @@ cJSON*** get_json_parsed(wchar_t* input, cJSON** root) {
 	char *json_string = read_file(file_name);
 	cJSON*** json_parsed = read_json(json_string, *root);
 
-	//remove(file_name);
+	remove(file_name);
 	
 	return json_parsed;
 }

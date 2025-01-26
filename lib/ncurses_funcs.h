@@ -72,7 +72,7 @@ void delete_wins(WINDOW** w_arr, int count) {
     }
 }
 
-void print_search(WINDOW* input_win, int visible_width, int pos, int offset, wchar_t* input) {
+void print_search(WINDOW* input_win, int visible_width, int pos, int offset, wchar_t* input, int* is_start) {
 	if (shrinked) {
 		mvprintw(0, 2, "─────────────");
 		mvprintw(0, 2, "Search");
@@ -85,8 +85,13 @@ void print_search(WINDOW* input_win, int visible_width, int pos, int offset, wch
     mvwprintw(input_win, 0, 1, ">");      
     wclrtoeol(input_win);          
 
+    if (!(*is_start)) {
+        mvwprintw(input_win, 0, 3, "%ls", input + offset);
+    } else {
+        *is_start = false;
+    }
     //mvwprintw(input_win, 0, 3, "%.*ls", visible_width, input + offset);
-    mvwprintw(input_win, 0, 3, "%ls", input + offset);
+    
     //mvwprintw(input_win, 0, 3, "%ls", input); 
     wmove(input_win, 0, 3 + pos - offset);
     wrefresh(input_win);           
@@ -174,14 +179,16 @@ void draw_main() {
     int srch_err = 0;
     int negative_shift = 0;
 
+    int is_start = 1;
+
     while (1) {
     	if (srch_err) {
     		ch = wget_wch(input_win, &wch);
-    		print_search(input_win, visible_width, pos, offset, input);
+    		print_search(input_win, visible_width, pos, offset, input, &is_start);
     		srch_err = 0;
     		curs_set(1);
     	} else {
-    		print_search(input_win, visible_width, pos, offset, input);
+    		print_search(input_win, visible_width, pos, offset, input, &is_start);
     		ch = wget_wch(input_win, &wch);
     	}
         
@@ -193,7 +200,7 @@ void draw_main() {
 
             cJSON* root = NULL;
 
-            pos = wcslen(input) - 1;
+            pos = wcslen(input);
 
             wchar_t cp_input[wcslen(input)];
             wcscpy(cp_input, input);
@@ -493,7 +500,7 @@ void draw_main() {
                 }
             }
         } else if (wch == KEY_RIGHT) { 
-            if (pos > 0 && pos < wcslen(input)) {
+            if (pos < wcslen(input)) {
                 negative_shift--;          
                 pos++;
                 
